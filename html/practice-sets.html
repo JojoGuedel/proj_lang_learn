@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<!-- Coding by CodingLab | www.codinglabweb.com -->
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!----======== CSS ======== -->
+    <link rel="stylesheet" href="main.css">
+
+    <!----===== Boxicons CSS ===== -->
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+
+    <!--<title>Dashboard Sidebar Menu</title>-->
+</head>
+
+<body>
+    <nav class="sidebar close">
+        <header>
+            <!-- <div class="image-text">
+                <span class="image">
+                    <img src="logo.png" alt="">
+                </span>
+
+                <div class="text logo-text">
+                    <span class="name">Codinglab</span>
+                    <span class="profession">Web developer</span>
+                </div>
+            </div> -->
+
+            <i class='bx bx-chevron-right toggle'></i>
+        </header>
+
+        <div class="menu-bar">
+            <div class="menu">
+
+                <!-- <li class="search-box">
+                    <i class='bx bx-search icon'></i>
+                    <input type="text" placeholder="Search...">
+                </li> -->
+
+                <ul class="menu-links">
+                    <li class="nav-link">
+                        <a href="./practice-sets.html">
+                            <i class='bx bx-math icon'></i>
+                            <span class="text nav-text">practice sets</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-link">
+                        <a href="./comming-soon.html">
+                            <i class='bx bx-dots-vertical-rounded icon'></i>
+                            <span class="text nav-text">settings</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-link">
+                        <a href="./comming-soon.html">
+                            <i class='bx bx-bell icon'></i>
+                            <span class="text nav-text">about</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bottom-content">
+                <!-- <li class="">
+                    <a href="#">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Logout</span>
+                    </a>
+                </li> -->
+
+                <li class="mode">
+                    <div class="sun-moon">
+                        <i class='bx bx-moon icon moon'></i>
+                        <i class='bx bx-sun icon sun'></i>
+                    </div>
+                    <span class="mode-text text">Dark mode</span>
+
+                    <div class="toggle-switch">
+                        <span class="switch"></span>
+                    </div>
+                </li>
+
+            </div>
+        </div>
+
+    </nav>
+
+    <section class="page-content">
+        <div class="page-title">practice sets</div>
+        <section class="section-content">
+            <div class="section-title">local sets</div>
+            <div class="practice-set-list">
+                <ul>
+                    <li>
+                        <a href="./comming-soon.html" class="title section-text">English set 1</a>
+                        <a href="./comming-soon.html" class="author section-text">Leonie Imhof</a>
+                    </li>
+                    <li>
+                        <a href="./comming-soon.html" class="title section-text">English set 1</a>
+                        <a href="./comming-soon.html" class="author section-text">Leonie Imhof</a>
+                    </li>
+                    <li>
+                        <a href="./comming-soon.html" class="title section-text">English set 1</a>
+                        <a href="./comming-soon.html" class="author section-text">Leonie Imhof</a>
+                    </li>
+                    <li>
+                        <a href="./comming-soon.html" class="title section-text">English set 1</a>
+                        <a href="./comming-soon.html" class="author section-text">Leonie Imhof</a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+        <section class="section-content">
+            <div class="section-title">download</div>
+            <div class="download-practice-set">
+                <input type="text" placeholder="enter url">
+                <i class='bx bx-search icon'></i>
+            </div>
+
+            <div class="practice-set">
+                <ul>
+                    <li>
+                        <a href="./comming-soon.html" class="card section-text">
+                            <div class="def1">
+                                sein Wissen erweitern
+                            </div>
+                            <div class="def2">
+                                to expand one's knowledge
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./comming-soon.html" class="card section-text">
+                            <div class="def1">
+                                sein Wissen erweitern
+                            </div>
+                            <div class="def2">
+                                to expand one's knowledge
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./comming-soon.html" class="card section-text">
+                            <div class="def1">
+                                sein Wissen erweitern
+                            </div>
+                            <div class="def2">
+                                to expand one's knowledge
+                            </div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="./comming-soon.html" class="card section-text">
+                            <div class="def1">
+                                sein Wissen erweitern
+                            </div>
+                            <div class="def2">
+                                to expand one's knowledge
+                            </div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </section>
+
+    <script>
+        const body = document.querySelector('body'),
+            sidebar = body.querySelector('nav'),
+            toggle = body.querySelector(".toggle"),
+            // searchBtn = body.querySelector(".search-box"),
+            modeSwitch = body.querySelector(".toggle-switch"),
+            modeText = body.querySelector(".mode-text"),
+            menuLinks = body.querySelector(".nav-link");
+
+        console.log(modeSwitch);
+
+
+        toggle.addEventListener("click", () => {
+            sidebar.classList.toggle("close");
+        })
+        
+        menuLinks.addEventListener("hover", () => {
+            sidebar.classList.contains("close");
+            sidebar.classList.toggle("close");
+        });
+
+        // searchBtn.addEventListener("click", () => {
+        //     sidebar.classList.remove("close");
+        // })
+
+        modeSwitch.addEventListener("click", () => {
+            body.classList.toggle("dark");
+
+            if (body.classList.contains("dark")) {
+                modeText.innerText = "Light mode";
+            } else {
+                modeText.innerText = "Dark mode";
+
+            }
+        });
+    </script>
+
+</body>
+
+</html>
