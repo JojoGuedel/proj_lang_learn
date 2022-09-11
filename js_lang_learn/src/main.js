@@ -71,7 +71,6 @@ class Settings {
     review_save_props(key, value) {
 
         if (key == 'temp') return undefined;
-        console.log(key, value);
         return value;
     }
 
@@ -235,114 +234,6 @@ class PracticeSet {
     }
 }
 
-
-
-
-// class PracticeUnit {
-//     constructor(left, right) {
-//         this.correct = 0;
-//         this.visited = 0;
-//         this.left = [left]
-//         this.right = [right]
-//     }
-// }
-
-// class PracticeSet {
-//     constructor(url, title, author) {
-//         this.file_name = url.hashCode() + "" + getRandomInt(100000000000000) + ".json";
-//         this.url = url;
-//         this.title = title;
-//         this.author = author;
-
-//         this.swap = false;
-
-//         this.cards = [];
-//     }
-
-//     gen_list_html() {
-//     }
-
-//     gen_preview() {
-//         const preview_element = document.createElement('div');
-//         preview_element.classList.add('practice-set-preview');
-
-//         const title_element = document.createElement('h1');
-//         preview_element.appendChild(title_element);
-//         title_element.append(this.title);
-
-//         const list_element = document.createElement('ul');
-//         preview_element.appendChild(list_element);
-
-//         const author_element = document.createElement('li');
-//         list_element.appendChild(author_element);
-//         author_element.append(this.author);
-
-//         const count_element = document.createElement('li');
-//         list_element.appendChild(count_element);
-//         count_element.append(this.cards.length);
-
-//         return preview_element;
-//     }
-
-//     save() {
-//         const buffer = JSON.stringify(this);
-//         fs.writeFileSync(path.join(settings.content.data_dir, "/practice_sets/" + this.file_name), buffer);
-//     }
-
-//     static load() {
-//         const practice_set_dir = path.join(settings.content.data_dir, "/practice_sets");
-//         let files = fs.readdirSync(practice_set_dir);
-//         let sets = [];
-
-//         for (let i = 0; i < files.length; i++) {
-//             const element = files[i];
-
-//             const buffer = fs.readFileSync(path.join(practice_set_dir, element)).toString();
-//             const set_json = JSON.parse(buffer);
-//             let set = new PracticeSet(set_json.url, set_json.title, set_json.author);
-//             set.file_name = element;
-//             set.cards = set_json.cards;
-//             sets.push(set);
-//         }
-//         return sets;
-//     }
-
-//     delete() {
-//         fs.unlinkSync(path.join(settings.content.data_dir, "/practice_sets/" + this.file_name));
-//     }
-
-//     reset() {
-//         for (let i = 0; i < this.cards.length; i++) {
-//             const element = this.cards[i];
-
-//             element.correct = 0;
-//             element.visited = 0;
-//         }
-//     }
-
-//     add_unit(left, right) {
-//         // for (let i = 0; i < this.cards.length; i++) {
-//         //     const element = this.cards[i];
-
-//         //     for (let j = 0; j < element.left.length; j++) {
-//         //         if (left == element.left[j]) {
-//         //             element.right.push(right)
-//         //             return;
-//         //         }
-//         //     }
-
-//         //     for (let j = 0; j < element.right.length; j++) {
-//         //         if (right == element.right[j]) {
-//         //             element.left.push(left)
-//         //             return;
-//         //         }
-//         //     }
-//         // }
-
-//         this.cards.push(new PracticeUnit(left, right))
-//     }
-// }
-
 class PracticeMode01_MetaData {
     constructor() {
         this.correct = [];
@@ -355,13 +246,13 @@ class PracticeMode01_MetaData {
         this.last_block = 0;
         this.last_def = 0;
 
-        this.correct = true;
+        this.last_block_correct = true;
         this.min_correct = 1;
     }
 
     static from_practice_set(practice_set) {
         if (!practice_set.meta_data.practice_mode_01)
-            return PracticeMode01_MetaData.gen_blocks(practice_set, 0);
+            return PracticeMode01_MetaData.gen_blocks(practice_set, 1);
         else {
             const mode_data = new PracticeMode01_MetaData();
             mode_data.correct = practice_set.meta_data.practice_mode_01.correct;
@@ -403,7 +294,7 @@ class PracticeMode01_MetaData {
             mode.correct[mode.blocks.length - 1].push(0);
             mode.visited[mode.blocks.length - 1].push(0);
             mode.blocks[mode.blocks.length - 1].push(i);
-            current = current + 1 % mode.size;
+            current = (current + 1) % mode.size;
         }
 
         practice_set.save();
@@ -411,13 +302,15 @@ class PracticeMode01_MetaData {
     }
 
     get_next(correct) {
-        if (correct) this.correct[this.last_block][this.last_def] += 1;        
-        if (this.correct[this.last_block][this.last_def] < this.min_correct) this.correct = false;
-
-        this.last_def = this.last_def + 1 % this.size;
-        if (this.last_def == 0 && correct) {
+        if (this.last_def == 0) this.last_block_correct = true;
+        
+        if (correct) this.correct[this.last_block][this.last_def] += 1;
+        if (this.correct[this.last_block][this.last_def] < this.min_correct) this.last_block_correct = false;
+        
+        this.last_def = (this.last_def + 1) % this.size;
+        if (this.last_def == 0 && this.last_block_correct) {
             this.last_block += 1;
-
+            
             if (this.last_block >= this.blocks.length) return -1;
         }
         
@@ -426,6 +319,7 @@ class PracticeMode01_MetaData {
     }
 
     get_current() {
+        if (this.last_block >= this.blocks.length) return -1;
         return this.blocks[this.last_block][this.last_def];
     }
 }
@@ -438,32 +332,144 @@ class PracticeMode01 {
 
     submit_awnser() {
         const awnser = this.input_element.value;
+        const links = this.practice_set.links[this.mode_data.get_current()];
 
-        console.log(awnser);
-        console.log(this.practice_set.links[this.mode_data.get_current()]);
+        this.correct_awnsers = [];
+        this.wrong_awnsers = [];
+
+        for (let i = 0; i < links.length; i++) {
+            const solution = this.practice_set.definitions[links[i]].expression;
+            
+            if (awnser.includes(solution)) this.correct_awnsers.push(solution);
+            else this.wrong_awnsers.push(solution);
+        }
+
+        if (this.wrong_awnsers.length == 0) {
+            this.input_element.value = '';
+
+            if (this.mode_data.get_next(true) == -1)
+                this.quit_view();
+
+            this.practice_set.save();
+            this.load_practice();
+        }
+        else {
+            this.practice_view_element.classList.add('hide');
+            this.practice_solution_element.classList.remove('hide');
+
+            this.load_solution();
+        }
     }
-
-    reload_span_element() {
+    
+    load_solution() {
+        this.title_element.innerHTML = '';
+        this.title_element.append(this.practice_set.definitions[this.mode_data.get_current()].expression);
+        
+        this.user_awnser_element.innerHTML = '';
+        this.user_awnser_element.append(this.input_element.value);
+        
+        this.solution_list_element.innerHTML = '';
+        this.wrong_awnsers.forEach(awnser => {
+            const li_element = document.createElement('li');
+            li_element.classList.add('wrong');
+            li_element.append(awnser);
+            this.solution_list_element.appendChild(li_element);
+        });
+        
+        this.correct_awnsers.forEach(awnser => {
+            const li_element = document.createElement('li');
+            li_element.classList.add('correct');
+            li_element.append(awnser);
+            this.solution_list_element.appendChild(li_element);
+        });
+    }
+    
+    load_practice() {
         this.span_element.innerHTML = '';
-        console.log(this.mode_data.get_current());
+        this.input_element.value = '';
+        this.input_element.focus();
         this.span_element.append(this.practice_set.definitions[this.mode_data.get_current()].expression);
+    }
+    
+    load_solution_view() {
+        this.practice_solution_element = document.createElement('div');
+        this.practice_solution_element.classList.add('practice-solution');
+        this.practice_solution_element.classList.add('hide');
+        
+        this.awnser_element = document.createElement('div');
+        this.awnser_element.classList.add('awnser');
+        this.practice_solution_element.appendChild(this.awnser_element);
+        
+        this.title_element = document.createElement('span');
+        this.awnser_element.appendChild(this.title_element);
+        
+        this.user_awnser_element = document.createElement('span');
+        this.awnser_element.append(this.user_awnser_element);
+        
+        this.solution_list_element = document.createElement('ul');
+        this.solution_list_element.classList.add('practice-solution-list');
+        this.practice_solution_element.appendChild(this.solution_list_element);
+
+        this.solution_user_actions = document.createElement('div');
+        this.solution_user_actions.classList.add('practice-set-solution-actions');
+        this.practice_solution_element.appendChild(this.solution_user_actions);
+
+        const correct_awnser_button_element = create_button('I was correct', 'correct-awnser');
+        correct_awnser_button_element.addEventListener('click', () => {
+            this.practice_solution_element.classList.add('hide');
+            this.practice_view_element.classList.remove('hide');
+
+            if (this.mode_data.get_next(true) == -1)
+                this.quit_view();
+
+            this.practice_set.save();
+            this.load_practice();
+        });
+        this.solution_user_actions.appendChild(correct_awnser_button_element);
+
+        const continue_button_element = create_button('continue');
+        continue_button_element.addEventListener('click', () => {
+            this.practice_solution_element.classList.add('hide');
+            this.practice_view_element.classList.remove('hide');
+
+            if (this.mode_data.get_next(false) == -1)
+                this.quit_view();
+
+            this.practice_set.save();
+            this.load_practice();
+        });
+        this.solution_user_actions.appendChild(continue_button_element);
+
+        this.anchor_element.appendChild(this.practice_solution_element);
+
+        // window.onkeydown = (event) => {
+        //     if (event.keyCode != 13) return;
+
+        //     this.practice_solution_element.classList.add('hide');
+        //     this.practice_view_element.classList.remove('hide');
+
+        //     window.onkeydown = (event) => {};
+        //     this.mode_data.get_next(false);
+        //     this.load_practice();
+        // };
     }
 
     load_view() {
         const local_list =  document.querySelector('.practice-set-local-list');
         local_list.classList.add('hide');
 
-        this.anchor_element = document.querySelector('.practice-view');
+        this.anchor_element = document.querySelector('.practice-view-placeholder');
+        this.practice_view_element = document.createElement('div');
 
-        const practice_expr_element = document.createElement('div');
-        practice_expr_element.classList.add('practice-expr');
+        this.practice_expr_element = document.createElement('div');
+        this.practice_expr_element.classList.add('practice-expr');
 
         this.span_element = document.createElement('span');
         // this.span_element.append(this.blocks[this.current_block][this.current_expr].left[0]);
-        practice_expr_element.appendChild(this.span_element);
+        this.practice_expr_element.appendChild(this.span_element);
 
-        const submit_section_element = document.createElement('div');
-        submit_section_element.classList.add('search');
+        this.submit_section_element = document.createElement('div');
+        this.submit_section_element.classList.add('search');
 
         this.input_element = document.createElement('input');
         this.input_element.type = 'text';
@@ -472,13 +478,13 @@ class PracticeMode01 {
             if (event.keyCode == 13)
                 this.submit_awnser();
         });
-        submit_section_element.appendChild(this.input_element);
+        this.submit_section_element.appendChild(this.input_element);
 
         const submit_button_element = create_button('submit');
         submit_button_element.addEventListener("click", () => {
-            this.submit_awnser
+            this.submit_awnser();
         });
-        submit_section_element.appendChild(submit_button_element);
+        this.submit_section_element.appendChild(submit_button_element);
 
         const option_section_element = document.createElement('div');
         option_section_element.classList.add('options');
@@ -489,23 +495,26 @@ class PracticeMode01 {
         });
         option_section_element.appendChild(go_back_button_element);
 
-        const button_reset_progress = create_button("reset progress", "reset-progress");
-        button_reset_progress.addEventListener("click", () => {
-        });
-        option_section_element.appendChild(button_reset_progress);
+        // const button_reset_progress = create_button("reset progress", "reset-progress");
+        // button_reset_progress.addEventListener("click", () => {
+        // });
+        // option_section_element.appendChild(button_reset_progress);
 
+        // const swap_button_element = create_button('swap');
+        // swap_button_element.addEventListener('click', () => {
+        // })
+        // option_section_element.appendChild(swap_button_element);
 
-        const swap_button_element = create_button('swap');
-        swap_button_element.addEventListener('click', () => {
-        })
-        option_section_element.appendChild(swap_button_element);
+        this.practice_view_element.innerHTML = '';
+        this.practice_view_element.appendChild(this.practice_expr_element);
+        this.practice_view_element.appendChild(this.submit_section_element);
+        this.practice_view_element.appendChild(option_section_element);
 
-        this.anchor_element.innerHTML = '';
-        this.anchor_element.appendChild(practice_expr_element);
-        this.anchor_element.appendChild(submit_section_element);
-        this.anchor_element.appendChild(option_section_element);
+        this.anchor_element.appendChild(this.practice_view_element);
 
-        this.reload_span_element();
+        this.load_solution_view();
+
+        this.load_practice();
     }
 
     quit_view() {

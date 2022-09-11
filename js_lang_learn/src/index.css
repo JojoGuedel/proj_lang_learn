@@ -36,9 +36,6 @@ body {
 }
 
 /* utils */
-.hide {
-    display: none;
-}
 .section {
     margin-bottom: 10px;
 }
@@ -421,40 +418,42 @@ body {
     border-radius: 6px;
     background-color: var(--background-color-1);
 }
-.practice-view .search {
+.practice-view-placeholder .search {
     margin-top: 10px;
 
     display: flex;
     gap: 10px;
 }
-.practice-view .search input{
+.practice-view-placeholder .search input{
     flex-grow: 1;
 
     padding: 10px;
     border: none;
     border-radius: 6px;
 }
-.practice-view .search a {
+.practice-view-placeholder .search a {
     padding: 10px 20px;
     border-radius: 6px;
     text-align: center;
     background-color: var(--background-color-1);
     transition: var(--tran-03);
 }
-.practice-view .search a:hover {
+.practice-view-placeholder .search a:hover {
     color: var(--background-color-1);
     background-color: var(--color-blue);
     cursor: pointer;
     transition: var(--tran-03);
 }
 /* options */
-.practice-view .options {
+.practice-set-solution-actions,
+.practice-view-placeholder .options {
     margin-top: 50px;
 
     display: flex;
     gap: 10px;
 }
-.practice-view .options a {
+.practice-set-solution-actions a,
+.practice-view-placeholder .options a {
     flex-grow: 1;
     padding: 10px;
     border-radius: 6px;
@@ -462,9 +461,47 @@ body {
     background-color: var(--background-color-1);
     transition: var(--tran-03);
 }
-.practice-view .options a:hover {
+.practice-set-solution-actions a:hover,
+.practice-view-placeholder .options a:hover {
     color: var(--background-color-1);
     background-color: var(--color-blue);
     cursor: pointer;
     transition: var(--tran-03);
+}
+
+/* practice solution */
+
+.practice-solution .awnser {
+    background-color: var(--background-color-1);
+    border-radius: 6px;
+    
+    padding: 10px;
+    margin-bottom: 10px;
+
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+.practice-solution .awnser span {
+    display: block;
+    min-height: 2em;
+}
+ul.practice-solution-list li {
+    list-style: none;
+
+    border-radius: 6px;
+
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.practice-solution-list li.wrong {
+    background-color: var(--color-red);
+}
+.practice-solution-list li.correct {
+    background-color: var(--color-green);
+}
+
+.hide {
+    display: none;
 }
