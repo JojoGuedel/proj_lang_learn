@@ -202,9 +202,11 @@ class PracticeSet {
     }
 
     get_def(definition) {
-        const index = this.definitions.indexOf(definition);
-        if (index != -1)
-            return index;
+        for (let i = 0; i < this.definitions.length; i++) {
+            if (definition.expression == this.definitions[i].expression &&
+                definition.group == this.definitions[i].group)
+                    return i;
+        }
             
         this.links.push([]);
         return this.definitions.push(definition) - 1;
@@ -330,6 +332,19 @@ class PracticeMode01 {
         this.mode_data = PracticeMode01_MetaData.from_practice_set(this.practice_set);
     }
 
+    save() {
+        this.practice_set.meta_data.practice_mode_01.size = this.mode_data.size;
+        this.practice_set.meta_data.practice_mode_01.group = this.mode_data.group;
+
+        this.practice_set.meta_data.practice_mode_01.last_block = this.mode_data.last_block;
+        this.practice_set.meta_data.practice_mode_01.last_def = this.mode_data.last_def;
+
+        this.practice_set.meta_data.practice_mode_01.last_block_correct = this.mode_data.last_block_correct;
+        this.practice_set.meta_data.practice_mode_01.min_correct = this.mode_data.min_correct;
+
+        this.practice_set.save();
+    }
+
     submit_awnser() {
         const awnser = this.input_element.value;
         const links = this.practice_set.links[this.mode_data.get_current()];
@@ -350,7 +365,7 @@ class PracticeMode01 {
             if (this.mode_data.get_next(true) == -1)
                 this.quit_view();
 
-            this.practice_set.save();
+            this.save();
             this.load_practice();
         }
         else {
@@ -414,7 +429,7 @@ class PracticeMode01 {
         this.solution_user_actions.classList.add('practice-set-solution-actions');
         this.practice_solution_element.appendChild(this.solution_user_actions);
 
-        const correct_awnser_button_element = create_button('I was correct', 'correct-awnser');
+        const correct_awnser_button_element = create_button('i was correct', 'correct-awnser');
         correct_awnser_button_element.addEventListener('click', () => {
             this.practice_solution_element.classList.add('hide');
             this.practice_view_element.classList.remove('hide');
@@ -422,7 +437,7 @@ class PracticeMode01 {
             if (this.mode_data.get_next(true) == -1)
                 this.quit_view();
 
-            this.practice_set.save();
+            this.save();
             this.load_practice();
         });
         this.solution_user_actions.appendChild(correct_awnser_button_element);
@@ -435,7 +450,7 @@ class PracticeMode01 {
             if (this.mode_data.get_next(false) == -1)
                 this.quit_view();
 
-            this.practice_set.save();
+            this.save();
             this.load_practice();
         });
         this.solution_user_actions.appendChild(continue_button_element);
@@ -492,6 +507,7 @@ class PracticeMode01 {
         const go_back_button_element = create_button('go back', 'back');
         go_back_button_element.addEventListener('click', () => {
             this.quit_view();
+            this.save();
         });
         option_section_element.appendChild(go_back_button_element);
 
@@ -524,226 +540,6 @@ class PracticeMode01 {
         this.anchor_element.innerHTML = '';
     }
 }
-
-// class PracticeMode_1 {
-//     constructor(practice_set) {
-//         this.practice_set = practice_set;
-
-//         this.blocks = [];
-
-//         this.current_block = 0;
-//         this.current_expr = -1;
-
-//         this.gen_blocks();
-//     }
-
-//     init_view() {
-//         const local_list =  document.querySelector('.practice-set-local-list');
-//         local_list.classList.add('hide');
-
-//         this.anchor_element = document.querySelector('.practice-view');
-
-//         const practice_expr_element = document.createElement('div');
-//         practice_expr_element.classList.add('practice-expr');
-
-//         this.span_element = document.createElement('span');
-//         // this.span_element.append(this.blocks[this.current_block][this.current_expr].left[0]);
-//         practice_expr_element.appendChild(this.span_element);
-
-//         const submit_section_element = document.createElement('div');
-//         submit_section_element.classList.add('search');
-
-//         this.input_element = document.createElement('input');
-//         this.input_element.type = 'text';
-//         this.input_element.placeholder = 'enter awnser...';
-//         this.input_element.addEventListener("keypress", (event) => {
-//             if (event.keyCode == 13)
-//                 this.submit_awnser();
-//         });
-//         submit_section_element.appendChild(this.input_element);
-
-//         const submit_button_element = create_button('submit');
-//         submit_button_element.addEventListener("click", () => {
-//             this.submit_awnser();
-//         })
-//         submit_section_element.appendChild(submit_button_element);
-
-//         const option_section_element = document.createElement('div');
-//         option_section_element.classList.add('options');
-
-//         const go_back_button_element = create_button('go back', 'back');
-//         go_back_button_element.addEventListener('click', () => {
-//             this.practice_set.save();
-//             this.exit_view();
-//         });
-//         option_section_element.appendChild(go_back_button_element);
-
-//         const button_reset_progress = create_button("reset progress", "reset-progress");
-//         button_reset_progress.addEventListener("click", () => {
-//             this.current_block = 0;
-//             this.current_expr = 0;
-
-//             this.practice_set.reset();
-//             this.update_span_element();
-//         });
-//         option_section_element.appendChild(button_reset_progress);
-
-
-//         const swap_button_element = create_button('swap');
-//         swap_button_element.addEventListener('click', () => {
-//             this.practice_set.swap = !this.practice_set.swap;
-//             this.swap_units();
-//             this.update_span_element();
-//         })
-//         option_section_element.appendChild(swap_button_element);
-
-//         this.anchor_element.innerHTML = '';
-//         this.anchor_element.appendChild(practice_expr_element);
-//         this.anchor_element.appendChild(submit_section_element);
-//         this.anchor_element.appendChild(option_section_element);
-//     }
-
-//     exit_view() {
-//         const local_list =  document.querySelector('.practice-set-local-list');
-//         local_list.classList.remove('hide');
-
-//         this.anchor_element.innerHTML = '';
-//     }
-
-//     gen_blocks() {
-//         var current_practice_block = [];
-
-//         for (let i = 0; i < this.practice_set.cards.length; i++) {
-//             const element = this.practice_set.cards[i];
-
-//             if (i % settings.content.practice_block_size == 0) {
-//                 this.blocks.push(current_practice_block);
-//                 current_practice_block = [];
-//             }
-
-//             if (element.correct < settings.content.min_correct)
-//                 this.blocks[this.blocks.length - 1].push(element);
-//         }
-//     }
-
-//     shuffle_blocks() {
-//         for (let i = 0; i < this.blocks.length; i++) {
-//             const element = this.blocks[i];
-//             element.sort((a, b) => 0.5 - Math.random());
-//         }
-//     }
-
-//     swap_units() {
-//         for (let i = 0; i < this.blocks.length; i++) {
-//             const block = this.blocks[i];
-
-//             for (let j = 0; j < block.length; j++) {
-//                 const unit = block[j];
-
-//                 const temp_left = unit.left;
-//                 unit.left = unit.right;
-//                 unit.right = temp_left;
-//             }
-//         }
-//     }
-
-//     update_span_element() {
-//         this.span_element.innerHTML = '';
-//         this.span_element.append(this.blocks[this.current_block][this.current_expr].left[0]);
-//         this.input_element.focus();
-//     }
-
-//     next_element() {
-//         var correct = true;
-//         for (let i = 0; i < this.blocks[this.current_block].length; i++) {
-//             const element = this.blocks[this.current_block][i];
-
-//             if (element.correct < settings.content.min_correct) {
-//                 correct = false;
-//                 this.current_expr = i;
-//                 break;
-//             }
-//         }
-
-//         if (correct) {
-//             if (this.current_block < this.blocks.length) {
-//                 this.current_block += 1;
-//                 this.current_expr = -1;
-//                 return this.next_element();
-//             }
-//             else
-//                 return this.gen_finished();
-//         }
-
-
-
-
-//         if (++this.current_expr >= this.blocks[this.current_block].length) {
-//             this.current_expr = 0;
-//             this.shuffle_blocks();
-//         }
-
-//         for (let i = this.current_expr; i < this.blocks[this.current_block].length; i++) {
-//             const element = this.blocks[this.current_block][i];
-
-//             if (element.correct < settings.content.min_correct) {
-//                 correct = false;
-//                 this.current_expr = i;
-//                 break;
-//             }
-//         }
-
-//         if (correct) {
-//             for (let i = 0; i < this.blocks[this.current_block].length; i++) {
-//                 const element = this.blocks[this.current_block][i];
-
-//                 if (element.correct < settings.content.min_correct) {
-//                     correct = false;
-//                     this.current_expr = i;
-//                     break;
-//                 }
-//             }
-//         }
-
-//         if (correct) {
-//             if (this.current_block < this.blocks.length) {
-//                 this.current_block += 1;
-//                 this.current_expr = -1;
-//                 return this.next_element();
-//             }
-//             else
-//                 return this.gen_finished();
-//         }
-
-//         this.blocks[this.current_block][this.current_expr].visited += 1;
-//         return this.update_span_element();
-//     }
-
-
-//     gen_finished() {
-//     }
-
-//     gen_wrong_awnser_element() {
-
-//     }
-
-//     submit_awnser() {
-//         const awnser = this.input_element.value;
-
-//         if (awnser == this.blocks[this.current_block][this.current_expr].right[0]) {
-//             this.blocks[this.current_block][this.current_expr].correct += 1;
-//             this.practice_set.save();
-//             this.input_element.value = '';
-//             this.next_element();
-//         }
-//         else {
-
-//         }
-//     }
-// }
-
-
-
 
 const set_html_by_class = function (element_class, html) {
     let e = document.getElementsByClassName(element_class);

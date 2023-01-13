@@ -39,7 +39,7 @@ let set_html_by_id = function(element_id, html) {
         e.innerHTML = html;
 }
 
-let main = function () {
+{
     let nav_menu = [
         new NavPoint("practice set", "/index.html")
             .add_child(new NavPoint("learn", "/index.html"))
@@ -53,5 +53,3 @@ let main = function () {
     let nav_menu_html = gen_nav_menu_html(nav_menu);
     set_html_by_id("nav-menu-anchor", nav_menu_html);
 }
-
-main();
